@@ -1432,6 +1432,7 @@
         ratings: state.ratings,
         themenProgress: state.themenProgress,
         bookmarks: state.bookmarks,
+        showCAS: state.showCAS,
       };
       fetch(apiUrl('/user/progress'), {
         method: 'PUT',
@@ -1458,6 +1459,10 @@
           state.ratings = parsed.ratings || {};
           state.themenProgress = parsed.themenProgress || {};
           state.bookmarks = parsed.bookmarks || {};
+          if (parsed.showCAS !== undefined) {
+            state.showCAS = parsed.showCAS;
+            applyCASToggle();
+          }
         } catch (e) {
           state.progress = {};
           state.ratings = {};
@@ -1518,6 +1523,7 @@
     state.showCAS = !state.showCAS;
     applyCASToggle();
     try { localStorage.setItem('abitur-mathe-show-cas', String(state.showCAS)); } catch (e) {}
+    saveProgress();
     applyFilters();
   }
   function updateToolFilterOptions() {
