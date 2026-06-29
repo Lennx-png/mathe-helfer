@@ -716,17 +716,6 @@
       });
     });
 
-    // Toggle register form
-    $('#show-register-btn').addEventListener('click', function () {
-      var f = $('#register-form');
-      f.classList.toggle('hidden');
-      if (!f.classList.contains('hidden')) {
-        $('#login-error').classList.add('hidden');
-        $('#register-error').classList.add('hidden');
-        $('#register-success').style.display = 'none';
-      }
-    });
-
     // Register
     $('#register-btn').addEventListener('click', function () {
       var username = $('#reg-username').value.trim();
