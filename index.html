@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abitur 2027 — Mathe LK</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-panel">
+      <h1 class="login-title">Abitur 2027 · Mathe LK</h1>
+      <p class="login-subtitle">Bitte melde dich mit deinen Zugangsdaten an</p>
+      <div id="login-error" class="login-error hidden"></div>
+      <form id="login-form">
+        <input type="text" id="login-username" class="search-input" placeholder="Benutzername" autocomplete="username" required>
+        <input type="password" id="login-password" class="search-input" placeholder="Passwort" autocomplete="current-password" required>
+        <button type="submit" class="btn-primary btn-lg login-btn">Anmelden</button>
+      </form>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <h1 class="topbar-title">Abitur 2027 · Mathe LK</h1>
+      <span class="topbar-subtitle">BW · IQB-Aufgabenpool</span>
+      <span class="topbar-user" id="topbar-username"></span>
+      <div class="topbar-right">
+        <span class="topbar-progress" id="progress-summary">0/296</span>
+        <div class="menu-container">
+          <button id="menu-btn" class="icon-btn" title="Menü">☰</button>
+          <div id="menu-dropdown" class="menu-dropdown hidden">
+            <label class="menu-item">
+              <span data-i18n="dark_mode">Dark Mode</span>
+              <input type="checkbox" id="dark-toggle">
+            </label>
+            <label class="menu-item">
+              <span data-i18n="show_cas">MMS/CAS Aufgaben</span>
+              <input type="checkbox" id="cas-toggle" checked>
+            </label>
+            <div class="menu-item-info" data-i18n="cas_info">MMS/CAS wird im Abitur in Baden-Württemberg nicht benötigt.</div>
+            <div class="menu-divider"></div>
+            <button id="global-stats-btn" class="menu-item menu-btn" data-i18n="global_stats">Statistiken</button>
+            <button id="shortcuts-btn" class="menu-item menu-btn" data-i18n="shortcuts">Tastenkürzel</button>
+            <div class="menu-divider"></div>
+            <button id="export-btn" class="menu-item menu-btn">📥 Daten exportieren</button>
+            <button id="import-btn" class="menu-item menu-btn">📤 Daten importieren</button>
+            <div class="menu-divider"></div>
+            <button id="reset-progress-btn" class="menu-item menu-btn" data-i18n="reset_progress" data-i18n-title="reset_progress_desc">Fortschritt zurücksetzen</button>
+            <button id="reset-all-btn" class="menu-item menu-btn" data-i18n="reset_all" data-i18n-title="reset_all_desc">Alle Daten löschen</button>
+            <div class="menu-divider"></div>
+            <button id="logout-btn" class="menu-item menu-btn">Abmelden</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app">
+    <main class="content">
+      <div class="mode-tabs">
+        <button class="mode-tab active" data-mode="browse" data-i18n="browse">Durchsuchen</button>
+        <button class="mode-tab" data-mode="train" data-i18n="train">Trainer</button>
+        <button class="mode-tab" data-mode="stats">Statistiken</button>
+        <button class="mode-tab" data-mode="themen">Themenübersicht</button>
+      </div>
+
+      <!-- BROWSE VIEW -->
+      <div id="browse-view">
+        <div class="toolbar">
+          <input type="search" id="search-input" class="search-input" data-i18n-placeholder="search_placeholder" placeholder="Aufgabe suchen…" spellcheck="false">
+          <div class="area-pills" id="area-pills">
+            <button class="area-pill active" data-area="all" data-i18n="all">Alle</button>
+            <button class="area-pill" data-area="analysis">Analysis</button>
+            <button class="area-pill" data-area="geometrie">Geometrie</button>
+            <button class="area-pill" data-area="stochastik">Stochastik</button>
+            <button class="area-pill" id="bookmark-filter" data-i18n="bookmarks">Merkliste</button>
+          </div>
+          <div class="filter-row">
+            <select id="filter-part" class="filter-select">
+              <option value="all" data-i18n="filter_part">Teil A+B</option>
+              <option value="A" data-i18n="filter_part_a">Teil A (ohne Hilfsmittel)</option>
+              <option value="B" data-i18n="filter_part_b">Teil B (mit Hilfsmitteln)</option>
+            </select>
+            <select id="filter-difficulty" class="filter-select">
+              <option value="all" data-i18n="filter_diff_all">Alle Niveaus</option>
+              <option value="AG1">AG1</option>
+              <option value="AG2">AG2</option>
+            </select>
+            <select id="filter-tool" class="filter-select">
+              <option value="all" data-i18n="filter_tool_all">Alle Hilfsmittel</option>
+              <option value="none" data-i18n="filter_tool_none">Keine</option>
+              <option value="WTR">WTR</option>
+              <option value="MMS">MMS/CAS</option>
+            </select>
+            <select id="filter-year" class="filter-select">
+              <option value="all" data-i18n="filter_year_all">Alle Jahre</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+              <option value="2019">2019</option>
+              <option value="2018">2018</option>
+              <option value="2017">2017</option>
+              <option value="BSP" data-i18n="sample">Beispielaufgaben</option>
+            </select>
+          </div>
+        </div>
+
+        <section class="progress-panel">
+          <div class="progress-card">
+            <div class="progress-card-head">
+              <div>
+                <div class="progress-label" data-i18n="progress">Fortschritt</div>
+                <div class="progress-title" data-i18n="progress_title">Was du schon kannst</div>
+              </div>
+              <a id="official-browser-link" class="official-link" href="https://www.iqb.hu-berlin.de/de/schule/aufgaben/sekii/abiturpruefungsaufgaben-mathematik/?Anforderungsniveau=2173" target="_blank" rel="noopener">IQB-Pool ↗</a>
+              <a id="global-stats-link" class="official-link" href="#" style="margin-left:12px" data-i18n="global_stats">Statistiken</a>
+            </div>
+            <div class="progress-meter">
+              <div id="overall-bar" class="progress-meter-fill"></div>
+            </div>
+            <div class="progress-meta">
+              <span id="overall-count">0 erledigt</span>
+              <span id="overall-percent">0%</span>
+            </div>
+          </div>
+          <div class="progress-chart">
+            <canvas id="progress-canvas" width="160" height="160"></canvas>
+            <span class="chart-label" id="chart-label">0%</span>
+          </div>
+          <div id="area-chart" class="area-chart"></div>
+        </section>
+
+        <div class="view-toggle" id="view-toggle">
+          <button class="view-btn active" data-view="year" data-i18n="view_year">Jahrgang</button>
+          <button class="view-btn" data-view="method" data-i18n="view_method">Methode</button>
+          <button class="view-btn" data-view="topic" data-i18n="view_topic">Thema</button>
+          <button class="view-btn" data-view="area" data-i18n="view_area">Bereich</button>
+        </div>
+
+        <div id="result-info" class="result-info"></div>
+        <div id="task-list" class="task-grid"></div>
+      </div>
+
+      <!-- TRAINER VIEW -->
+      <div id="trainer-view" class="hidden">
+        <div id="trainer-config" class="trainer-panel">
+          <h2 id="trainer-heading" class="trainer-heading" data-i18n="trainer">Trainer</h2>
+          <p id="trainer-desc" class="trainer-desc" data-i18n="train_desc">Wähle Jahrgänge und starte das Training. Nach jeder Aufgabe bewertest du die Schwierigkeit — schwere Aufgaben werden dir häufiger angezeigt.</p>
+
+          <div id="trainer-config-stats" class="trainer-config-stats hidden"></div>
+
+          <div class="trainer-config-section">
+            <label id="trainer-config-years-label" class="trainer-config-label" data-i18n="years">Jahrgänge</label>
+            <div class="trainer-year-grid" id="trainer-years"></div>
+          </div>
+
+          <div class="trainer-config-section">
+            <label id="trainer-config-areas-label" class="trainer-config-label" data-i18n="areas">Bereiche</label>
+            <div class="trainer-area-grid" id="trainer-areas">
+              <label class="trainer-check"><input type="checkbox" value="analysis" checked> Analysis</label>
+              <label class="trainer-check"><input type="checkbox" value="geometrie" checked> Geometrie</label>
+              <label class="trainer-check"><input type="checkbox" value="stochastik" checked> Stochastik</label>
+            </div>
+          </div>
+
+          <div class="trainer-config-section">
+            <label id="trainer-config-sort-label" class="trainer-config-label" data-i18n="sort">Sortierung</label>
+            <select id="trainer-order" class="filter-select">
+              <option value="hard-first" data-i18n="sort_hard">Schwere zuerst</option>
+              <option value="new-first" data-i18n="sort_new">Neue zuerst</option>
+              <option value="random" data-i18n="sort_random">Zufällig</option>
+            </select>
+          </div>
+
+          <div class="trainer-config-section">
+            <label class="trainer-config-label" data-i18n="filter_part">Teil</label>
+            <select id="trainer-filter-part" class="filter-select">
+              <option value="all" data-i18n="filter_part">Teil A+B</option>
+              <option value="A" data-i18n="filter_part_a">Teil A (ohne Hilfsmittel)</option>
+              <option value="B" data-i18n="filter_part_b">Teil B (mit Hilfsmitteln)</option>
+            </select>
+          </div>
+
+          <div class="trainer-config-section">
+            <label class="trainer-config-label" data-i18n="filter_diff_all">Niveau</label>
+            <select id="trainer-filter-difficulty" class="filter-select">
+              <option value="all" data-i18n="filter_diff_all">Alle Niveaus</option>
+              <option value="AG1">AG1</option>
+              <option value="AG2">AG2</option>
+            </select>
+          </div>
+
+          <div class="trainer-config-section">
+            <label class="trainer-config-label" data-i18n="filter_tool_all">Hilfsmittel</label>
+            <select id="trainer-filter-tool" class="filter-select">
+              <option value="all" data-i18n="filter_tool_all">Alle Hilfsmittel</option>
+              <option value="none" data-i18n="filter_tool_none">Keine</option>
+              <option value="WTR">WTR</option>
+              <option value="MMS">MMS/CAS</option>
+            </select>
+          </div>
+
+          <button id="trainer-start-btn" class="btn-primary" data-i18n="train_start">Training starten</button>
+        </div>
+
+        <div id="trainer-study" class="trainer-panel hidden">
+          <div class="trainer-progress-row">
+            <span id="trainer-progress-text" class="trainer-progress-text">1/50</span>
+            <div class="trainer-progress-track">
+              <div id="trainer-progress-fill" class="trainer-progress-fill"></div>
+            </div>
+            <button id="trainer-stop-btn" class="icon-btn-sm" title="Training beenden">✕</button>
+          </div>
+
+          <div class="trainer-card-large" id="trainer-card">
+            <div class="trainer-card-title-row">
+              <h2 id="trainer-task-title" class="trainer-task-title"></h2>
+              <span id="trainer-task-year" class="trainer-task-year"></span>
+            </div>
+            <div class="trainer-card-method" id="trainer-task-method"></div>
+            <div class="trainer-card-links">
+              <a id="trainer-iqb-link" href="#" target="_blank" rel="noopener" class="btn-secondary">↗ IQB-Filter</a>
+              <a id="trainer-pdf-link" href="#" target="_blank" rel="noopener" class="btn-secondary">📄 PDF öffnen</a>
+            </div>
+            <div id="trainer-note-display" class="trainer-note-display hidden"></div>
+          </div>
+
+          <div class="trainer-actions" id="trainer-actions">
+            <button id="trainer-done-btn" class="btn-primary btn-lg" data-i18n="done_btn">✓ Aufgabe erledigt</button>
+            <button id="trainer-stats-btn" class="btn-secondary" data-i18n="stats_btn">Statistik</button>
+          </div>
+
+          <div id="trainer-feedback" class="trainer-feedback hidden">
+            <div class="trainer-feedback-inner">
+              <div class="rating-group">
+                <label class="rating-label" data-i18n="how_hard">Wie schwer war die Aufgabe?</label>
+                <div class="star-rating" id="star-rating">
+                  <button class="star" data-rating="1">★</button>
+                  <button class="star" data-rating="2">★</button>
+                  <button class="star" data-rating="3">★</button>
+                  <button class="star" data-rating="4">★</button>
+                  <button class="star" data-rating="5">★</button>
+                  <button class="trainer-bookmark-btn" id="trainer-bookmark-btn" title="Merkliste">☆</button>
+                </div>
+              </div>
+              <div class="note-group">
+                <label class="rating-label" data-i18n="note_label">Notiz (optional)</label>
+                <textarea id="trainer-note" rows="3" data-i18n-placeholder="note_placeholder" placeholder="z.B. Unteraufgabe a) war schwer — welche Methode? Was war knifflig?"></textarea>
+              </div>
+              <button id="trainer-next-btn" class="btn-primary btn-lg" data-i18n="next_btn">Weiter →</button>
+            </div>
+          </div>
+
+          <div id="trainer-live-stats" class="trainer-live-stats hidden">
+            <div class="trainer-live-stats-inner">
+              <div class="trainer-live-stats-header">
+                <span class="trainer-live-stats-title" data-i18n="trainer_stats">Trainer-Statistik</span>
+                <button id="trainer-live-close" class="icon-btn-sm">✕</button>
+              </div>
+              <div id="trainer-live-chart" class="difficulty-chart"></div>
+              <div id="trainer-live-meta" class="trainer-live-meta"></div>
+              <button id="trainer-copy-stats" class="btn-secondary" style="margin-top:12px" data-i18n="copy_data">Daten kopieren</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="trainer-overview" class="trainer-panel hidden">
+          <h2 id="trainer-overview-heading" class="trainer-heading" data-i18n="train_done">Training abgeschlossen</h2>
+          <div class="trainer-overview-stats" id="trainer-overview-stats"></div>
+          <div class="difficulty-chart" id="overview-difficulty-chart"></div>
+          <div class="trainer-overview-actions">
+            <button id="trainer-again-btn" class="btn-primary" data-i18n="train_again">Nochmal trainieren</button>
+            <button id="trainer-overview-copy" class="btn-secondary" data-i18n="copy_data">Daten kopieren</button>
+          </div>
+        </div>
+      </div>
+      <!-- STATS VIEW -->
+      <div id="stats-view" class="hidden">
+        <div class="toolbar">
+          <div class="area-pills" id="stats-area-pills">
+            <button class="area-pill active" data-stats-area="all" data-i18n="all">Alle</button>
+            <button class="area-pill" data-stats-area="analysis">Analysis</button>
+            <button class="area-pill" data-stats-area="geometrie">Geometrie</button>
+            <button class="area-pill" data-stats-area="lineare-algebra">Lineare Algebra</button>
+            <button class="area-pill" data-stats-area="stochastik">Stochastik</button>
+          </div>
+        </div>
+
+        <div class="trainer-panel" style="max-width:none">
+          <div id="stats-overview-stats" class="trainer-overview-stats"></div>
+          <h3 class="trainer-config-label" style="margin:24px 0 12px;text-align:center">Schwierigkeitsverteilung</h3>
+          <div id="stats-difficulty-chart" class="difficulty-chart" style="max-width:400px;margin:0 auto"></div>
+          <div style="text-align:center;margin-top:20px">
+            <button id="stats-copy-btn" class="btn-secondary" data-i18n="copy_data">Daten kopieren</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- THEMEN VIEW -->
+      <div id="themen-view" class="hidden">
+        <div id="themen-content"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Shortcuts modal -->
+  <div id="shortcuts-modal" class="modal-overlay hidden">
+    <div class="modal-panel" style="max-width:420px">
+      <div class="modal-header">
+        <span class="modal-title" data-i18n="shortcuts">Tastenkürzel</span>
+        <button class="icon-btn-sm modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="shortcut-row"><span class="shortcut-key">B</span><span data-i18n="shortcut_browse">Durchsuchen</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">T</span><span data-i18n="shortcut_train">Trainer</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">S</span><span data-i18n="shortcut_stats">Statistiken</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">M</span><span data-i18n="shortcut_themen">Themenübersicht</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">/</span><span data-i18n="shortcut_search">Suche fokussieren</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">Esc</span><span data-i18n="shortcut_esc">Modal schließen</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">1-5</span><span data-i18n="shortcut_rating">Bewertung im Trainer</span></div>
+        <div class="shortcut-row"><span class="shortcut-key">Enter</span><span data-i18n="shortcut_enter">Aufgabe erledigt / Weiter</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Note viewer modal -->
+  <div id="note-modal" class="modal-overlay hidden">
+    <div class="modal-panel">
+      <div class="modal-header">
+        <span class="modal-title" data-i18n="note">Notiz</span>
+        <button id="note-modal-close" class="icon-btn-sm">&times;</button>
+      </div>
+      <div id="note-modal-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
