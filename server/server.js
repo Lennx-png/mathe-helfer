@@ -72,6 +72,23 @@ app.put('/api/user/progress', requireAuth, asyncHandler(async (req, res) => {
   res.json({ ok: true });
 }));
 
+app.get('/api/debug/connection', asyncHandler(async (req, res) => {
+  try {
+    const urlSet = !!process.env.SUPABASE_URL;
+    const keySet = !!process.env.SUPABASE_KEY;
+    let testResult = 'not tried';
+    try {
+      const { data } = await db.getClient().from('users').select('*').limit(1);
+      testResult = 'ok, ' + (data ? data.length : 0) + ' users';
+    } catch (e) {
+      testResult = 'query failed: ' + e.message + ' (code: ' + e.code + ')';
+    }
+    res.json({ supabase_url_set: urlSet, supabase_key_set: keySet, db_test: testResult });
+  } catch (e) {
+    res.json({ error: e.message });
+  }
+}));
+
 app.get('/api/admin/users', requireAuth, asyncHandler(async (req, res) => {
   const users = await db.getUsers();
   res.json({
@@ -82,7 +99,7 @@ app.get('/api/admin/users', requireAuth, asyncHandler(async (req, res) => {
 
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
-  res.status(500).json({ error: 'Interner Serverfehler' });
+  res.status(500).json({ error: err.message || 'Interner Serverfehler' });
 });
 
 if (require.main === module) {

@@ -59,4 +59,4 @@ async function setProgress(userId, dataValue) {
   if (error) throw error;
 }
 
-module.exports = { getUsers, findUser, addUser, getProgress, setProgress };
+module.exports = { getClient, getUsers, findUser, addUser, getProgress, setProgress };
