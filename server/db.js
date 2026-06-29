@@ -1,8 +1,12 @@
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
+let SUPABASE_KEY = process.env.SUPABASE_KEY;
+if (SUPABASE_KEY && SUPABASE_KEY.includes('eyJ')) {
+  SUPABASE_KEY = SUPABASE_KEY.substring(SUPABASE_KEY.indexOf('eyJ'));
+}
 
 let supabase;
 

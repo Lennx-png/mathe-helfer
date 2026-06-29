@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcryptjs');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const db = require('./db');
 const { generateToken, requireAuth } = require('./auth');
