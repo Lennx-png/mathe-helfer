@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
+const ws = require('ws');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -15,7 +16,9 @@ function getClient() {
     if (!SUPABASE_URL || !SUPABASE_KEY) {
       throw new Error('SUPABASE_URL und SUPABASE_KEY müssen in .env oder als Umgebungsvariable gesetzt sein');
     }
-    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+      realtime: { transport: ws }
+    });
   }
   return supabase;
 }
