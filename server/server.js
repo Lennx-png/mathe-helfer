@@ -56,6 +56,14 @@ app.get('/api/user/progress', requireAuth, (req, res) => {
   res.json({ data: data || null });
 });
 
+app.get('/api/admin/users', requireAuth, (req, res) => {
+  const users = db.getUsers();
+  res.json({
+    count: users.length,
+    users: users.map(u => ({ id: u.id, username: u.username, created_at: u.created_at }))
+  });
+});
+
 app.put('/api/user/progress', requireAuth, (req, res) => {
   const { data } = req.body;
   if (data === undefined || data === null) {
