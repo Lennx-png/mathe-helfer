@@ -716,6 +716,50 @@
       });
     });
 
+    // Toggle register form
+    $('#show-register-btn').addEventListener('click', function () {
+      var f = $('#register-form');
+      f.classList.toggle('hidden');
+      if (!f.classList.contains('hidden')) {
+        $('#login-error').classList.add('hidden');
+        $('#register-error').classList.add('hidden');
+        $('#register-success').style.display = 'none';
+      }
+    });
+
+    // Register
+    $('#register-btn').addEventListener('click', function () {
+      var username = $('#reg-username').value.trim();
+      var password = $('#reg-password').value;
+      var adminSecret = $('#reg-admin-secret').value;
+
+      if (!username || !password || !adminSecret) return;
+
+      fetch(apiUrl('/auth/register'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, adminSecret })
+      }).then(function (res) {
+        return res.json().then(function (data) { return { status: res.status, data: data }; });
+      }).then(function (result) {
+        if (result.status !== 200) {
+          $('#register-error').textContent = result.data.error || 'Fehler';
+          $('#register-error').classList.remove('hidden');
+          $('#register-success').style.display = 'none';
+          return;
+        }
+        $('#register-error').classList.add('hidden');
+        $('#register-success').textContent = 'Benutzer "' + result.data.username + '" erfolgreich angelegt!';
+        $('#register-success').style.display = 'block';
+        $('#reg-username').value = '';
+        $('#reg-password').value = '';
+        $('#reg-admin-secret').value = '';
+      }).catch(function () {
+        $('#register-error').textContent = 'Verbindung zum Server fehlgeschlagen';
+        $('#register-error').classList.remove('hidden');
+      });
+    });
+
     // Logout
     $('#logout-btn').addEventListener('click', function () {
       logout();
