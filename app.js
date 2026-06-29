@@ -731,14 +731,12 @@
     $('#register-btn').addEventListener('click', function () {
       var username = $('#reg-username').value.trim();
       var password = $('#reg-password').value;
-      var adminSecret = $('#reg-admin-secret').value;
-
-      if (!username || !password || !adminSecret) return;
+      if (!username || !password) return;
 
       fetch(apiUrl('/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, adminSecret })
+        body: JSON.stringify({ username, password })
       }).then(function (res) {
         return res.json().then(function (data) { return { status: res.status, data: data }; });
       }).then(function (result) {
@@ -753,7 +751,6 @@
         $('#register-success').style.display = 'block';
         $('#reg-username').value = '';
         $('#reg-password').value = '';
-        $('#reg-admin-secret').value = '';
       }).catch(function () {
         $('#register-error').textContent = 'Verbindung zum Server fehlgeschlagen';
         $('#register-error').classList.remove('hidden');

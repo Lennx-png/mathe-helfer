@@ -15,16 +15,8 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, '..')));
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET;
-
 app.post('/api/auth/register', (req, res) => {
-  const { username, password, adminSecret } = req.body;
-  if (!ADMIN_SECRET) {
-    return res.status(500).json({ error: 'ADMIN_SECRET nicht auf dem Server konfiguriert' });
-  }
-  if (adminSecret !== ADMIN_SECRET) {
-    return res.status(403).json({ error: 'Ungültiger Admin-Schlüssel' });
-  }
+  const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Benutzername und Passwort erforderlich' });
   }
