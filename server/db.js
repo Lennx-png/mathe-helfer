@@ -1,61 +1,58 @@
-const fs = require('fs');
-const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
-const DB_PATH = path.join(__dirname, '..', 'data', 'app.json');
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
-function readDb() {
-  try {
-    if (fs.existsSync(DB_PATH)) {
-      const raw = fs.readFileSync(DB_PATH, 'utf-8');
-      return JSON.parse(raw);
+let supabase;
+
+function getClient() {
+  if (!supabase) {
+    if (!SUPABASE_URL || !SUPABASE_KEY) {
+      throw new Error('SUPABASE_URL und SUPABASE_KEY müssen in .env oder als Umgebungsvariable gesetzt sein');
     }
-  } catch (e) {
-    console.error('Fehler beim Lesen der Datenbank:', e.message);
+    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
   }
-  return { users: [], progress: {} };
+  return supabase;
 }
 
-function writeDb(data) {
-  try {
-    const dir = path.dirname(DB_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (e) {
-    console.error('Fehler beim Schreiben der Datenbank:', e.message);
+async function getUsers() {
+  const { data, error } = await getClient().from('users').select('*').order('id');
+  if (error) throw error;
+  return data || [];
+}
+
+async function findUser(username) {
+  const { data, error } = await getClient().from('users').select('*').eq('username', username).single();
+  if (error && error.code !== 'PGRST116') throw error;
+  return data || null;
+}
+
+async function addUser(username, passwordHash) {
+  const { error } = await getClient().from('users').insert({ username, password_hash: passwordHash });
+  if (error) {
+    if (error.code === '23505') throw new Error('Benutzer existiert bereits');
+    throw error;
   }
 }
 
-function getUsers() {
-  return readDb().users;
+async function getProgress(userId) {
+  const { data, error } = await getClient().from('user_progress').select('data_key, data_value').eq('user_id', userId);
+  if (error) throw error;
+  const result = {};
+  if (data) {
+    data.forEach(r => { result[r.data_key] = r.data_value; });
+  }
+  return result;
 }
 
-function findUser(username) {
-  const db = readDb();
-  return db.users.find(u => u.username === username) || null;
-}
-
-function addUser(username, passwordHash) {
-  const db = readDb();
-  db.users.push({
-    id: db.users.length + 1,
-    username,
-    password_hash: passwordHash,
-    created_at: new Date().toISOString()
-  });
-  writeDb(db);
-}
-
-function getProgress(userId) {
-  const db = readDb();
-  return db.progress[String(userId)] || null;
-}
-
-function setProgress(userId, data) {
-  const db = readDb();
-  db.progress[String(userId)] = data;
-  writeDb(db);
+async function setProgress(userId, dataValue) {
+  const client = getClient();
+  const { error } = await client.from('user_progress').upsert(
+    { user_id: userId, data_key: 'data', data_value: dataValue, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id, data_key' }
+  );
+  if (error) throw error;
 }
 
 module.exports = { getUsers, findUser, addUser, getProgress, setProgress };

@@ -15,7 +15,11 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, '..')));
 
-app.post('/api/auth/register', (req, res) => {
+function asyncHandler(fn) {
+  return (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+}
+
+app.post('/api/auth/register', asyncHandler(async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Benutzername und Passwort erforderlich' });
@@ -23,21 +27,24 @@ app.post('/api/auth/register', (req, res) => {
   if (password.length < 4) {
     return res.status(400).json({ error: 'Passwort muss mindestens 4 Zeichen lang sein' });
   }
-  if (db.findUser(username)) {
+
+  const existing = await db.findUser(username);
+  if (existing) {
     return res.status(409).json({ error: 'Benutzer existiert bereits' });
   }
-  const hash = bcrypt.hashSync(password, 10);
-  db.addUser(username, hash);
-  res.json({ ok: true, username });
-});
 
-app.post('/api/auth/login', (req, res) => {
+  const hash = bcrypt.hashSync(password, 10);
+  await db.addUser(username, hash);
+  res.json({ ok: true, username });
+}));
+
+app.post('/api/auth/login', asyncHandler(async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Benutzername und Passwort erforderlich' });
   }
 
-  const user = db.findUser(username);
+  const user = await db.findUser(username);
   if (!user) {
     return res.status(401).json({ error: 'Falscher Benutzername oder Passwort' });
   }
@@ -49,28 +56,33 @@ app.post('/api/auth/login', (req, res) => {
 
   const token = generateToken(user.id, user.username);
   res.json({ token, username: user.username });
-});
+}));
 
-app.get('/api/user/progress', requireAuth, (req, res) => {
-  const data = db.getProgress(req.user.userId);
-  res.json({ data: data || null });
-});
+app.get('/api/user/progress', requireAuth, asyncHandler(async (req, res) => {
+  const progress = await db.getProgress(req.user.userId);
+  res.json({ data: progress.data || null });
+}));
 
-app.get('/api/admin/users', requireAuth, (req, res) => {
-  const users = db.getUsers();
-  res.json({
-    count: users.length,
-    users: users.map(u => ({ id: u.id, username: u.username, created_at: u.created_at }))
-  });
-});
-
-app.put('/api/user/progress', requireAuth, (req, res) => {
+app.put('/api/user/progress', requireAuth, asyncHandler(async (req, res) => {
   const { data } = req.body;
   if (data === undefined || data === null) {
     return res.status(400).json({ error: 'Keine Daten übermittelt' });
   }
-  db.setProgress(req.user.userId, data);
+  await db.setProgress(req.user.userId, data);
   res.json({ ok: true });
+}));
+
+app.get('/api/admin/users', requireAuth, asyncHandler(async (req, res) => {
+  const users = await db.getUsers();
+  res.json({
+    count: users.length,
+    users: users.map(u => ({ id: u.id, username: u.username, created_at: u.created_at }))
+  });
+}));
+
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ error: 'Interner Serverfehler' });
 });
 
 if (require.main === module) {
